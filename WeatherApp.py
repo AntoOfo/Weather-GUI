@@ -39,21 +39,25 @@ def get_weather():
     global weather, temp, windspeed, user_input, weather_icon, weather_win
     
     api_key = "dd983f4b06532bc0823252920cd8d1ec"
-    
-    user_input = city_entry.get().strip().title()
+    try:
+        user_input = city_entry.get().strip().title()
 
-    response = requests.get(
-            f"https://api.openweathermap.org/data/2.5/weather?q={user_input}&units=metric&appid={api_key}"
-        )
-    data = response.json()
+        response = requests.get(
+                f"https://api.openweathermap.org/data/2.5/weather?q={user_input}&units=metric&appid={api_key}"
+            )
+        data = response.json()
     
-    weather = data["weather"][0]["main"]
-    temp = round(data["main"]["temp"])
-    windspeed = data["wind"]["speed"]
+        weather = data["weather"][0]["main"]
+        temp = round(data["main"]["temp"])
+        windspeed = data["wind"]["speed"]
     
     
-    weather_window()
-    update_weather_icon()
+        weather_window()
+        update_weather_icon()
+    except KeyError:
+        not_found.config(text="Not Found")
+    else:
+       not_found.config(text="") 
     
 def weather_window():
     global weather_icon, weather_win
@@ -118,7 +122,7 @@ def update_weather_icon():
         weather_icon.config(image=foggy_icon)
 
 def menu():
-    global main_font, secondary_font, city_entry
+    global main_font, secondary_font, city_entry, not_found
 
     menu_window = Tk()
     menu_window.geometry("390x600")
@@ -155,6 +159,13 @@ def menu():
                        fg="Grey",
                        bg="#101010")
     entry_desc.place(x=80, y=255)
+
+    not_found = Label(menu_window,
+                      text="",
+                      font=(secondary_font),
+                      fg="Grey",
+                      bg="#101010")
+    not_found.place(x=150, y=305)
     
     submitcity = Button(menu_window,
                         text=">",
