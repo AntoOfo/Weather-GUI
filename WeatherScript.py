@@ -24,6 +24,7 @@ while True:
         data = response.json()
         weather = data["weather"][0]["main"]
         temp = round(data["main"]["temp"])
+        windspeed = data["wind"]["speed"]
 
 
         timezone_name = city_to_timezone.get(user_input)
@@ -45,6 +46,7 @@ while True:
         print(f"Temperature is {temp}C")
         print(f"Time is {city_time}")
         print(f"Date is {city_date}")
+        print(f"Wind speed is {windspeed}")
     except KeyError:
         print("Invalid Input")
         continue

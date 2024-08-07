@@ -8,66 +8,117 @@ import pytz
 def icons():
     global snow_icon, clear_icon, foggy_icon, thunder_icon, drizzle_icon, rain_icon, cloudy_icon
     snow = Image.open("snow.png")
-    snow_resized = snow.resize((100,100), Image.LANCZOS)
+    snow_resized = snow.resize((130,130), Image.LANCZOS)
     snow_icon = ImageTk.PhotoImage(snow_resized)
     
     clear = Image.open("clear-sky.png")
-    clear_resized = clear.resize((100,100), Image.LANCZOS)
+    clear_resized = clear.resize((130,130), Image.LANCZOS)
     clear_icon = ImageTk.PhotoImage(clear_resized)
     
     foggy = Image.open("foggy.png")
-    foggy_resized = foggy.resize((100,100), Image.LANCZOS)
+    foggy_resized = foggy.resize((130,130), Image.LANCZOS)
     foggy_icon = ImageTk.PhotoImage(foggy_resized)
 
     thunderstorm = Image.open("thunderstorm.png")
-    thunderstorm_resized = thunderstorm.resize((100,100), Image.LANCZOS)
+    thunderstorm_resized = thunderstorm.resize((130,130), Image.LANCZOS)
     thunder_icon = ImageTk.PhotoImage(thunderstorm_resized)
     
     drizzle = Image.open("drizzle.png")
-    drizzle_resized = drizzle.resize((100,100), Image.LANCZOS)
+    drizzle_resized = drizzle.resize((130,130), Image.LANCZOS)
     drizzle_icon = ImageTk.PhotoImage(drizzle_resized)
     
     rain = Image.open("rain.png")
-    rain_resized = rain.resize((100,100), Image.LANCZOS)
+    rain_resized = rain.resize((130,130), Image.LANCZOS)
     rain_icon = ImageTk.PhotoImage(rain_resized)
     
     cloudy = Image.open("cloudyicon.png")
-    cloudy_resized = cloudy.resize((100,100), Image.LANCZOS)
+    cloudy_resized = cloudy.resize((130,130), Image.LANCZOS)
     cloudy_icon = ImageTk.PhotoImage(cloudy_resized)
+    
+def get_weather():
+    global weather, temp, windspeed, user_input, weather_icon, weather_win
+    
+    api_key = "dd983f4b06532bc0823252920cd8d1ec"
+    
+    user_input = city_entry.get().strip().title()
+
+    response = requests.get(
+            f"https://api.openweathermap.org/data/2.5/weather?q={user_input}&units=metric&appid={api_key}"
+        )
+    data = response.json()
+    
+    weather = data["weather"][0]["main"]
+    temp = round(data["main"]["temp"])
+    windspeed = data["wind"]["speed"]
+    
+    
+    weather_window()
+    update_weather_icon()
+    
 def weather_window():
+    global weather_icon, weather_win
     
-    weather_window = Toplevel()
-    weather_window.geometry("390x600")
-    weather_window.resizable(False, False)
-    weather_window.title("Weather")
+    weather_win = Toplevel()
+    weather_win.geometry("390x600")
+    weather_win.resizable(False, False)
+    weather_win.title("Weather")
     
-    weather_window.config(background="#101010")
+    weather_win.config(background="#101010")
     
-    city_header = Label(weather_window,
-                        text="Testing",
+    city_header = Label(weather_win,
+                        text=user_input,
                         font=(main_font),
                         fg="White",
                         bg="#101010")
     city_header.pack(pady=70)
     
-    wind_desc = Label(weather_window,
-                      text="Wind speed: 0%",
+    wind_desc = Label(weather_win,
+                      text=f"Wind speed: {windspeed}mph",
                       font=(secondary_font, 12),
                       fg="Grey",
                       bg="#101010")
-    wind_desc.place(x=130, y=140)
+    wind_desc.place(x=117, y=140)
     
-    weather_icon = Label(weather_window,
+    weather_icon = Label(weather_win,
                          image=cloudy_icon,
                          bg="#101010")
-    weather_icon.place(x=130, y=210)
+    weather_icon.place(x=120, y=185)
+    
+    weather_desc = Label(weather_win,
+                         text=weather,
+                         font=(main_font, 15),
+                         fg="Grey",
+                         bg="#101010")
+    weather_desc.place(x=150, y=335)
+    degrees = Label(weather_win,
+                    text=f"{temp}\u00B0",
+                    font=(main_font),
+                    fg="White",
+                    bg="#101010")
+    degrees.place(x=148, y=390)
 
-    weather_window.mainloop()
+   
+    
+def update_weather_icon():
+    global weather_icon
 
-
+    if weather == "Clear":
+        weather_icon.config(image=clear_icon)
+    elif weather == "Clouds":
+        weather_icon.config(image=cloudy_icon)
+    elif weather == "Rain":
+        weather_icon.config(image=rain_icon)  
+    elif weather == "Snow":
+        weather_icon.config(image=snow_icon)
+    elif weather == "Thunderstorm":
+        weather_icon.config(image=thunder_icon)
+    elif weather == "Drizzle":
+        weather_icon.config(image=drizzle_icon)
+    elif weather == "Atmosphere":
+        weather_icon.config(image=foggy_icon)
 
 def menu():
-    global main_font, secondary_font
+    global main_font, secondary_font, city_entry
 
     menu_window = Tk()
     menu_window.geometry("390x600")
@@ -111,7 +162,7 @@ def menu():
                         fg="White",
                         bg="#101010",
                         relief=FLAT,
-                        command=weather_window)
+                        command=get_weather)
     submitcity.place(x=150,y=360)
     
     icons()
